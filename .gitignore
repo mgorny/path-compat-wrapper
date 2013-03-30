@@ -9,4 +9,5 @@ Makefile.in
 /build-aux/
 /config.*
 /configure
+/m4/
 /stamp-h1

@@ -1,8 +1,8 @@
-bin_PROGRAMS = app
+ACLOCAL_AMFLAGS = -I m4
 
-AM_CPPFLAGS = $(PROCPS_CFLAGS)
-LDADD = $(PROCPS_LIBS)
+lib_LTLIBRARIES = libpath-respect-wrapper.la
 
-BUILT_SOURCES = app.c
-
-app_SOURCES = app.c src/path-respect-wrapper.c
+libpath_respect_wrapper_la_SOURCES = src/path-respect-wrapper.c
+libpath_respect_wrapper_la_CPPFLAGS = $(PROCPS_CFLAGS)
+libpath_respect_wrapper_la_LIBADD = $(PROCPS_LIBS)
+libpath_respect_wrapper_la_LDFLAGS = -version-info 0:0:0
