@@ -38,10 +38,22 @@ void complain()
 	else
 		parent_name = "[unable to open procfs]";
 
+	/* Use journal if available. Fallback to syslog. */
+#ifdef HAVE_SYSTEMD_JOURNAL
+	if (sd_journal_print(LOG_WARNING,
+				"%s run with no respect to $PATH by %d (%s)",
+				real_name, getppid(), parent_name))
+	{
+#endif
+
 	openlog("path-respect-wrapper", LOG_CONS, LOG_USER);
 	syslog(LOG_WARNING, "%s run with no respect to $PATH by %d (%s)",
 			real_name, getppid(), parent_name);
 	closelog();
+
+#ifdef HAVE_SYSTEMD_JOURNAL
+	}
+#endif
 
 	if (proc)
 		closeproc(proc);

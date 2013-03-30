@@ -17,6 +17,15 @@ PKG_CHECK_MODULES([PROCPS], [libprocps],, [
 		[AC_MSG_ERROR([Error: required library proc not found! Please install procps.])])
 ])
 
+AC_ARG_ENABLE([systemd-journal],
+	[AS_HELP_STRING([--disable-systemd-journal],
+		[Disable use of systemd-journal])])
+AS_IF([test x"$enable_systemd_journal" != x"no"], [
+	PKG_CHECK_MODULES([SYSTEMD_JOURNAL], [libsystemd-journal],[
+		AC_DEFINE([HAVE_SYSTEMD_JOURNAL], [1], [Define if you have systemd-journal])
+	],)
+])
+
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
