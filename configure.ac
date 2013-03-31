@@ -12,11 +12,6 @@ AC_USE_SYSTEM_EXTENSIONS
 
 LT_INIT([disable-static])
 
-PKG_CHECK_MODULES([PROCPS], [libprocps],, [
-	AC_CHECK_LIB([proc], [readproc],,
-		[AC_MSG_ERROR([Error: required library proc not found! Please install procps.])])
-])
-
 AC_ARG_ENABLE([systemd-journal],
 	[AS_HELP_STRING([--disable-systemd-journal],
 		[Disable use of systemd-journal])])

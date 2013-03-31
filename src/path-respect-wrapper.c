@@ -15,28 +15,40 @@
 #include <syslog.h>
 #include <unistd.h>
 
-#include <proc/readproc.h>
-
 extern const char* real_name;
 extern const char* real_path;
 
 void complain()
 {
-	pid_t pids[2] = { getppid(), 0 };
-	PROCTAB* proc = openproc(PROC_FILLCOM | PROC_PID, pids, 1);
 	const char* parent_name;
+	char buf[256];
+	FILE* f;
 
-	if (proc)
+	snprintf(buf, sizeof(buf), "/proc/%d/cmdline", getppid());
+	f = fopen(buf, "r");
+	if (f)
 	{
-		proc_t p;
-		memset(&p, 0, sizeof(p));
-		if (readproc(proc, &p))
-			parent_name = p.cmdline[0];
-		else
-			parent_name = "[unable to read procfs]";
+		size_t rd = fread(buf, 1, sizeof(buf), f);
+		size_t i;
+
+		/* join parameters with spaces */
+		for (i = 0; i < rd; ++i)
+		{
+			if (!buf[i])
+				buf[i] = ' ';
+		}
+
+		fclose(f);
+
+		if (rd > 0)
+		{
+			/* and null-terminate */
+			buf[rd-1] = 0;
+			parent_name = buf;
+		}
 	}
 	else
-		parent_name = "[unable to open procfs]";
+		parent_name = "[unable to read /proc]";
 
 	/* Use journal if available. Fallback to syslog. */
 #ifdef HAVE_SYSTEMD_JOURNAL
@@ -54,9 +66,6 @@ void complain()
 #ifdef HAVE_SYSTEMD_JOURNAL
 	}
 #endif
-
-	if (proc)
-		closeproc(proc);
 }
 
 int main(int argc, char* argv[])
