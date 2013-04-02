@@ -20,3 +20,9 @@ SUFFIXES = .in
 		-e "s|[@]LDFLAGS@|${LDFLAGS}|" ${srcdir}/$@.in > $@.tmp
 	chmod a-w,+x $@.tmp
 	mv $@.tmp $@
+
+EXTRA_DIST += NEWS
+NEWS: configure.ac Makefile.am
+	git for-each-ref refs/tags --sort '-*committerdate' \
+		--format '# %(tag) (%(*committerdate:short))%0a%(contents:body)' \
+		> NEWS
