@@ -13,11 +13,6 @@ AC_USE_SYSTEM_EXTENSIONS
 
 LT_INIT([disable-static])
 
-AC_PATH_PROG([LIBTOOL], [libtool])
-AS_IF([test x"$LIBTOOL" = x""], [
-	AC_MSG_ERROR(["libtool needs to be installed system-wide."])
-])
-
 AC_ARG_ENABLE([systemd-journal],
 	[AS_HELP_STRING([--disable-systemd-journal],
 		[Disable use of systemd-journal])])
