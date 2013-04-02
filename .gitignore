@@ -1,13 +1,18 @@
 Makefile
 Makefile.in
-.deps
 .dirstamp
+*.la
+*.lo
 *.o
+
+.deps/
+.libs/
 
 /aclocal.m4
 /autom4te.cache/
 /build-aux/
 /config.*
 /configure
+/libtool
 /m4/
 /stamp-h1
