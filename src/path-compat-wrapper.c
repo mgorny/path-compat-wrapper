@@ -1,5 +1,5 @@
 /**
- * Wrapper checking whether apps respect PATH and not hardcode paths.
+ * Wrapper complaining when apps are called via old paths.
  * (c) 2013 Michał Górny
  * 2-clause BSD license
  */
@@ -15,8 +15,8 @@
 #include <syslog.h>
 #include <unistd.h>
 
-extern const char* real_name;
-extern const char* real_path;
+extern const char* old_path;
+extern const char* new_path;
 
 void complain()
 {
@@ -53,15 +53,16 @@ void complain()
 	/* Use journal if available. Fallback to syslog. */
 #ifdef HAVE_SYSTEMD_JOURNAL
 	if (sd_journal_print(LOG_WARNING,
-				"%s run with no respect to $PATH by %d (%s)",
-				real_name, getppid(), parent_name))
+				"%s run through old path (should be %s) by %d (%s)",
+				old_path, new_path, getppid(), parent_name))
 	{
 #endif
 
-	openlog("path-respect-wrapper", LOG_CONS, LOG_USER);
-	syslog(LOG_WARNING, "%s run with no respect to $PATH by %d (%s)",
-			real_name, getppid(), parent_name);
-	closelog();
+		openlog("path-compat-wrapper", LOG_CONS, LOG_USER);
+		syslog(LOG_WARNING,
+				"%s run through old path (should be %s) by %d (%s)",
+				old_path, new_path, getppid(), parent_name);
+		closelog();
 
 #ifdef HAVE_SYSTEMD_JOURNAL
 	}
@@ -72,8 +73,8 @@ int main(int argc, char* argv[])
 {
 	complain();
 
-	execv(real_path, argv);
+	execv(new_path, argv);
 
-	fprintf(stderr, "execv(%s) failed: %s\n", real_path, strerror(errno));
+	fprintf(stderr, "execv(%s) failed: %s\n", new_path, strerror(errno));
 	return 127;
 }
