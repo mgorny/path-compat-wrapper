@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+# Build wrapper using libpath-compat-wrapper.
+# (c) 2013 Michał Górny
+# 2-clause BSD license.
+
+die() {
+	echo "${@}" >&2
+	exit 1
+}
+
+main() {
+	if [ ${#} -lt 2 -o ${#} -gt 3 ]; then
+		echo "Usage: ${0} <old-path> <new-path> [<output-file>]" >&2
+		echo "(<output-file> defaults to basename of <old-path>)" >&2
+		exit 1
+	fi
+
+	local old_path new_path out_file tmp_file 2>/dev/null
+	old_path=${1}
+	new_path=${2}
+	output_file=${3:-${old_path##*/}}
+	tmp_file=${output_file}.tmp.c
+
+	rm -f "${output_file}" "${tmp_file}"
+
+	cat > "${tmp_file}" <<_EOF_ || die "Unable to write ${tmp_file_c}."
+const char* const old_path = "${old_path}";
+const char* const new_path = "${new_path}";
+_EOF_
+
+	${CCLD:-${CC:-@CC@}} ${CFLAGS:-@CFLAGS@} ${LDFLAGS:-@LDFLAGS@} \
+		-o "${output_file}" "${tmp_file}" -lpath-compat-wrapper \
+		|| die "Unable to compile ${tmp_file}."
+
+	rm -f "${tmp_file}"
+
+	exit 0
+}
+
+main "${@}"
